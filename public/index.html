@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VPRMS – Smart Parking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- AUTH PAGE -->
+<div id="auth-page">
+  <div class="auth-bg">
+    <div class="auth-bg-blob b1"></div>
+    <div class="auth-bg-blob b2"></div>
+    <div class="auth-bg-blob b3"></div>
+  </div>
+  <div class="auth-left">
+    <div class="auth-brand"><div class="auth-logo-box">P</div><span>VPRMS</span></div>
+    <div class="auth-hero">
+      <h1>Smart Parking<br/><em>Reimagined.</em></h1>
+      <p>Reserve your spot in seconds. Real-time availability, instant confirmation.</p>
+    </div>
+    <div class="auth-pills">
+      <div class="auth-pill">🏢 3 Lots</div>
+      <div class="auth-pill">🅿️ 50+ Slots</div>
+      <div class="auth-pill">⚡ Instant Book</div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-tab-bar">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+      <!-- LOGIN -->
+      <div id="login-form" class="auth-form active">
+        <div id="login-error" class="alert-error"></div>
+        <div class="field"><label>Email</label>
+          <div class="fi"><span>✉</span><input type="email" id="login-email" placeholder="you@example.com"/></div></div>
+        <div class="field"><label>Password</label>
+          <div class="fi"><span>🔒</span><input type="password" id="login-password" placeholder="••••••••"/></div></div>
+        <button class="btn-auth" onclick="handleLogin()">Sign In <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        <p class="auth-hint">Demo: admin@vprms.com / password123</p>
+      </div>
+      <!-- REGISTER -->
+      <div id="register-form" class="auth-form">
+        <div id="register-error" class="alert-error"></div>
+        <div id="register-success" class="alert-success"></div>
+        <div class="field-row">
+          <div class="field"><label>Full Name</label>
+            <div class="fi"><span>👤</span><input type="text" id="reg-name" placeholder="John Doe"/></div></div>
+          <div class="field"><label>Phone</label>
+            <div class="fi"><span>📱</span><input type="tel" id="reg-phone" placeholder="9876543210"/></div></div>
+        </div>
+        <div class="field"><label>Email</label>
+          <div class="fi"><span>✉</span><input type="email" id="reg-email" placeholder="you@example.com"/></div></div>
+        <div class="field"><label>Password</label>
+          <div class="fi"><span>🔒</span><input type="password" id="reg-password" placeholder="••••••••"/></div></div>
+        <div class="field"><label>Account Type</label>
+          <div class="fi"><span>🏷</span><select id="reg-role"><option value="customer">Customer</option><option value="admin">Admin</option></select></div></div>
+        <button class="btn-auth" onclick="handleRegister()">Create Account <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-brand"><div class="sb-logo">P</div><div><div class="sb-title">VPRMS</div><div class="sb-sub">Smart Parking</div></div></div>
+    <div class="sb-user">
+      <div class="sb-av" id="user-avatar">?</div>
+      <div><div class="sb-uname" id="user-name">–</div><div class="sb-urole" id="user-role">–</div></div>
+    </div>
+    <nav id="sidebar-nav" class="sb-nav"></nav>
+    <button class="sb-logout" onclick="handleLogout()">↩ Sign Out</button>
+  </aside>
+
+  <main class="app-main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="tb-user"><div class="tb-av" id="topbar-avatar">?</div><span id="topbar-name">–</span></div>
+    </header>
+    <div class="content">
+
+      <!-- CUSTOMER DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-head">
+          <div><h1 id="dash-greeting">Welcome! 👋</h1><p class="page-sub">Your parking overview</p></div>
+          <button class="btn-primary" onclick="showPage('book')">+ Book a Slot</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi" style="--c:#818cf8"><div class="kpi-ico">🚗</div><div class="kpi-n" id="stat-vehicles">–</div><div class="kpi-l">My Vehicles</div></div>
+          <div class="kpi" style="--c:#fb923c"><div class="kpi-ico">🎫</div><div class="kpi-n" id="stat-reservations">–</div><div class="kpi-l">Total Bookings</div></div>
+          <div class="kpi" style="--c:#34d399"><div class="kpi-ico">✅</div><div class="kpi-n" id="stat-active">–</div><div class="kpi-l">Active Now</div></div>
+          <div class="kpi" style="--c:#f87171"><div class="kpi-ico">🏢</div><div class="kpi-n" id="stat-lots">–</div><div class="kpi-l">Parking Lots</div></div>
+        </div>
+        <div class="gc">
+          <div class="gc-head"><h3>Recent Bookings</h3><button class="btn-link" onclick="showPage('reservations')">View all →</button></div>
+          <div class="tw"><table class="ft"><thead><tr><th>Lot</th><th>Slot</th><th>Vehicle</th><th>Start</th><th>End</th><th>Status</th></tr></thead>
+          <tbody id="dash-recent-tbody"><tr><td colspan="6"><div class="empty">🎫<p>No bookings yet</p></div></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PARKING LOTS -->
+      <div id="page-lots" class="page">
+        <div class="page-head"><div><h1>Parking Lots</h1><p class="page-sub">Find your perfect spot</p></div></div>
+        <div id="lots-grid" class="lots-grid"><div class="empty">🏢<p>Loading...</p></div></div>
+      </div>
+
+      <!-- BOOK A SLOT -->
+      <div id="page-book" class="page">
+        <div class="page-head"><div><h1>Book a Slot</h1><p class="page-sub">Reserve your space in 3 steps</p></div></div>
+        <div class="gc">
+          <div class="gc-head"><h3><span class="step-num">1</span> Choose Lot &amp; Time</h3></div>
+          <div class="gc-body">
+            <div class="fg3">
+              <div class="field"><label>Parking Lot</label><div class="fi"><span>🏢</span><select id="book-lot" onchange="loadSlots()"><option value="">– Select Lot –</option></select></div></div>
+              <div class="field"><label>Vehicle Type</label><div class="fi"><span>🚘</span><select id="book-vtype" onchange="loadSlots();filterVehicleDropdown();"><option value="">– Any Type –</option><option value="two-wheeler">Two-Wheeler</option><option value="car">Car</option><option value="SUV">SUV</option><option value="truck">Truck</option></select></div></div>
+              <div class="field"><label>My Vehicle</label><div class="fi"><span>🔑</span><select id="book-vehicle"><option value="">– Select Vehicle –</option></select></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Start Time</label><div class="fi"><span>🕐</span><input type="datetime-local" id="book-start"/></div></div>
+              <div class="field"><label>End Time</label><div class="fi"><span>🕔</span><input type="datetime-local" id="book-end"/></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="gc" id="slots-card" style="display:none">
+          <div class="gc-head"><h3><span class="step-num">2</span> Pick a Slot</h3>
+            <div class="legend"><span class="ld avail"></span>Available <span class="ld occ"></span>Occupied</div>
+          </div>
+          <div class="gc-body"><div id="slots-container" class="slot-grid"></div></div>
+        </div>
+        <div id="booking-summary" style="display:none">
+          <div class="gc confirm-gc">
+            <div class="gc-head"><h3><span class="step-num">3</span> Confirm Booking</h3></div>
+            <div class="gc-body" id="booking-summary-body"></div>
+            <div class="gc-foot">
+              <button class="btn-ghost" onclick="clearBooking()">✕ Cancel</button>
+              <button class="btn-confirm" onclick="confirmBooking()">✅ Confirm Booking</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY RESERVATIONS -->
+      <div id="page-reservations" class="page">
+        <div class="page-head"><div><h1>My Reservations</h1><p class="page-sub">All your bookings</p></div><button class="btn-primary" onclick="showPage('book')">+ New</button></div>
+        <div class="gc"><div class="tw"><table class="ft"><thead><tr><th>ID</th><th>Lot</th><th>Slot</th><th>Vehicle</th><th>Start</th><th>End</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="reservations-tbody"><tr><td colspan="8"><div class="empty">🎫<p>Loading...</p></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- MY VEHICLES -->
+      <div id="page-vehicles" class="page">
+        <div class="page-head"><div><h1>My Vehicles</h1><p class="page-sub">Manage your fleet</p></div><button class="btn-primary" onclick="openAddVehicleModal()">+ Add Vehicle</button></div>
+        <div id="vehicles-grid" class="vehicles-grid"></div>
+      </div>
+
+      <!-- ADMIN DASHBOARD -->
+      <div id="page-admin-dash" class="page">
+        <div class="page-head"><div><h1>Admin Dashboard</h1><p class="page-sub">System overview</p></div></div>
+        <div class="kpi-row">
+          <div class="kpi" style="--c:#818cf8"><div class="kpi-ico">👥</div><div class="kpi-n" id="adm-customers">–</div><div class="kpi-l">Customers</div></div>
+          <div class="kpi" style="--c:#34d399"><div class="kpi-ico">🎫</div><div class="kpi-n" id="adm-active">–</div><div class="kpi-l">Active Bookings</div></div>
+          <div class="kpi" style="--c:#fb923c"><div class="kpi-ico">💰</div><div class="kpi-n" id="adm-revenue">–</div><div class="kpi-l">Revenue</div></div>
+        </div>
+        <div class="gc"><div class="gc-head"><h3>Lot Occupancy</h3></div><div class="gc-body" id="adm-occupancy">Loading...</div></div>
+      </div>
+
+      <!-- ADMIN ALL RESERVATIONS -->
+      <div id="page-admin-reservations" class="page">
+        <div class="page-head"><div><h1>All Reservations</h1><p class="page-sub">System-wide bookings</p></div></div>
+        <div class="gc"><div class="tw"><table class="ft"><thead><tr><th>ID</th><th>Customer</th><th>Vehicle</th><th>Lot</th><th>Slot</th><th>Start</th><th>End</th><th>Status</th></tr></thead>
+        <tbody id="admin-res-tbody"><tr><td colspan="8"><div class="empty"><p>Loading...</p></div></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- MANAGE LOTS -->
+      <div id="page-manage-lots" class="page">
+        <div class="page-head"><div><h1>Manage Lots</h1><p class="page-sub">Configure parking lots</p></div><button class="btn-primary" onclick="openAddLotModal()">+ Add Lot</button></div>
+        <div class="gc"><div class="tw"><table class="ft"><thead><tr><th>ID</th><th>Name</th><th>City</th><th>Address</th><th>Slots</th><th>Hours</th><th>Contact</th><th>Action</th></tr></thead>
+        <tbody id="manage-lots-tbody"><tr><td colspan="8"><div class="empty"><p>Loading...</p></div></td></tr></tbody></table></div></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="mo" id="modal-vehicle">
+  <div class="modal">
+    <div class="mh"><h3>Add New Vehicle</h3><button class="mx" onclick="closeModal('modal-vehicle')">✕</button></div>
+    <div class="mb">
+      <div id="vehicle-modal-error" class="alert-error"></div>
+      <div class="fg2">
+        <div class="field"><label>License Plate</label><div class="fi"><span>🪪</span><input type="text" id="v-plate" placeholder="KA01AB1234"/></div></div>
+        <div class="field"><label>Vehicle Type</label><div class="fi"><span>🚘</span><select id="v-type"><option value="two-wheeler">Two-Wheeler</option><option value="car">Car</option><option value="SUV">SUV</option><option value="truck">Truck</option></select></div></div>
+        <div class="field"><label>Brand / Model</label><div class="fi"><span>🏷</span><input type="text" id="v-brand" placeholder="Honda City"/></div></div>
+        <div class="field"><label>Color</label><div class="fi"><span>🎨</span><input type="text" id="v-color" placeholder="White"/></div></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn-ghost" onclick="closeModal('modal-vehicle')">Cancel</button><button class="btn-primary" onclick="addVehicle()">Add Vehicle</button></div>
+  </div>
+</div>
+
+<div class="mo" id="modal-lot">
+  <div class="modal">
+    <div class="mh"><h3>Add Parking Lot</h3><button class="mx" onclick="closeModal('modal-lot')">✕</button></div>
+    <div class="mb">
+      <div class="field"><label>Lot Name</label><div class="fi"><span>🏢</span><input type="text" id="lot-name" placeholder="Green Park Parking"/></div></div>
+      <div class="fg2">
+        <div class="field"><label>Address</label><div class="fi"><span>📍</span><input type="text" id="lot-address" placeholder="12 MG Road"/></div></div>
+        <div class="field"><label>City</label><div class="fi"><span>🌆</span><input type="text" id="lot-city" placeholder="Bengaluru"/></div></div>
+        <div class="field"><label>Opening Time</label><div class="fi"><span>🕐</span><input type="time" id="lot-open"/></div></div>
+        <div class="field"><label>Closing Time</label><div class="fi"><span>🕙</span><input type="time" id="lot-close"/></div></div>
+      </div>
+      <div class="field"><label>Contact</label><div class="fi"><span>📞</span><input type="text" id="lot-contact" placeholder="080-12345678"/></div></div>
+    </div>
+    <div class="mf"><button class="btn-ghost" onclick="closeModal('modal-lot')">Cancel</button><button class="btn-primary" onclick="addLot()">Add Lot</button></div>
+  </div>
+</div>
+
+<div class="mo" id="modal-slot">
+  <div class="modal">
+    <div class="mh"><h3>Add Slot</h3><button class="mx" onclick="closeModal('modal-slot')">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="slot-lot-id"/>
+      <div class="fg2">
+        <div class="field"><label>Slot Number</label><div class="fi"><span>🅿️</span><input type="text" id="slot-num" placeholder="A1"/></div></div>
+        <div class="field"><label>Slot Type</label><div class="fi"><span>🚘</span><select id="slot-type-sel"><option value="two-wheeler">Two-Wheeler</option><option value="car">Car</option><option value="SUV">SUV</option><option value="truck">Truck</option></select></div></div>
+        <div class="field"><label>Floor Level</label><div class="fi"><span>🏗</span><input type="number" id="slot-floor" value="0" min="0"/></div></div>
+        <div class="field"><label>Hourly Rate (₹)</label><div class="fi"><span>💵</span><input type="number" id="slot-rate" placeholder="30" min="1"/></div></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn-ghost" onclick="closeModal('modal-slot')">Cancel</button><button class="btn-primary" onclick="addSlot()">Add Slot</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

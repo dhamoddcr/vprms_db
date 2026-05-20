@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -27,13 +28,31 @@ const pool = new Pool({
     database: process.env.DB_NAME     || 'vprms_db',
     user:     process.env.DB_USER     || 'postgres',
     password: process.env.DB_PASSWORD || 'admin@123',
+    ssl: process.env.DB_HOST && process.env.DB_HOST !== 'localhost'
+         ? { rejectUnauthorized: false }
+         : false,
 });
 
-pool.connect((err) => {
+// ── Auto-initialize Database Schema ──────────────────────────
+async function initializeDatabase() {
+    try {
+        const schemaPath = path.join(__dirname, 'schema.sql');
+        if (fs.existsSync(schemaPath)) {
+            const schema = fs.readFileSync(schemaPath, 'utf8');
+            await pool.query(schema);
+            console.log('✅ Database schema initialized successfully');
+        }
+    } catch (err) {
+        console.error('⚠️ Schema init warning (tables may already exist):', err.message);
+    }
+}
+
+pool.connect(async (err) => {
     if (err) {
         console.error('❌ Database connection failed:', err.message);
     } else {
         console.log('✅ Connected to PostgreSQL database');
+        await initializeDatabase();
     }
 });
 

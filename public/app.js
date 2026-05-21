@@ -3,7 +3,9 @@
 // Roles: admin = manage only | customer = book only
 // ============================================================
 
-const API = '';
+const API = window.location.hostname === 'dhamoddcr.github.io'
+  ? 'https://vprms-db.onrender.com'
+  : '';
 let token       = localStorage.getItem('vprms_token');
 let currentUser = JSON.parse(localStorage.getItem('vprms_user') || 'null');
 let selectedSlotId = null;

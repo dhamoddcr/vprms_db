@@ -1,14 +1,38 @@
 -- ============================================================
 -- VPRMS - Vehicle Parking Reservation Management System
--- PostgreSQL Schema
+-- PostgreSQL Schema & Seeds
 -- ============================================================
 
--- ── ENUM Types ────────────────────────────────────────────────
-CREATE TYPE slot_type AS ENUM ('two-wheeler', 'car', 'SUV', 'truck');
-CREATE TYPE reservation_status AS ENUM ('pending', 'confirmed', 'cancelled', 'completed');
-CREATE TYPE payment_status_type AS ENUM ('pending', 'paid', 'failed', 'refunded');
-CREATE TYPE payment_method_type AS ENUM ('cash', 'card', 'upi', 'online');
-CREATE TYPE user_role AS ENUM ('customer', 'admin');
+-- ── Safe ENUM Types Creation ─────────────────────────────────
+DO $$ BEGIN
+    CREATE TYPE slot_type AS ENUM ('two-wheeler', 'car', 'SUV', 'truck');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE reservation_status AS ENUM ('pending', 'confirmed', 'cancelled', 'completed');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE payment_status_type AS ENUM ('pending', 'paid', 'failed', 'refunded');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE payment_method_type AS ENUM ('cash', 'card', 'upi', 'online');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE user_role AS ENUM ('customer', 'admin');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- ── User Table ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS "User" (
@@ -87,7 +111,7 @@ CREATE TABLE IF NOT EXISTS Payment (
     payment_time    TIMESTAMP DEFAULT NOW()
 );
 
--- ── Lot Occupancy View ────────────────────────────────────────
+DROP VIEW IF EXISTS Lot_Occupancy CASCADE;
 CREATE OR REPLACE VIEW Lot_Occupancy AS
 SELECT
     pl.lot_id,
@@ -110,3 +134,71 @@ VALUES (
     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     'admin'
 ) ON CONFLICT (email) DO NOTHING;
+
+-- ── Seed Default Parking Lots ──────────────────────────────────
+INSERT INTO Parking_Lot (lot_id, lot_name, address, city, total_slots, open_time, close_time, contact_number)
+SELECT 1, 'Downtown Plaza Parking', '123 MG Road', 'Bangalore', 5, '06:00:00', '23:00:00', '080-11112222'
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Lot WHERE lot_id = 1);
+
+INSERT INTO Parking_Lot (lot_id, lot_name, address, city, total_slots, open_time, close_time, contact_number)
+SELECT 2, 'Terminal 1 Airport Parking', 'HAL Airport Road', 'Bangalore', 4, '00:00:00', '23:59:59', '080-33334444'
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Lot WHERE lot_id = 2);
+
+INSERT INTO Parking_Lot (lot_id, lot_name, address, city, total_slots, open_time, close_time, contact_number)
+SELECT 3, 'Phoenix Mall Parking', 'LBS Road, Kurla', 'Mumbai', 3, '10:00:00', '22:00:00', '022-55556666'
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Lot WHERE lot_id = 3);
+
+-- Adjust SERIAL sequence for Parking_Lot
+SELECT setval(pg_get_serial_sequence('public.Parking_Lot', 'lot_id'), COALESCE(MAX(lot_id), 1)) FROM Parking_Lot;
+
+-- ── Seed Default Parking Slots ──────────────────────────────────
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 1, 1, 'A-101', 'car', 0, 40.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 1);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 2, 1, 'A-102', 'car', 0, 40.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 2);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 3, 1, 'B-201', 'two-wheeler', 1, 20.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 3);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 4, 1, 'C-301', 'SUV', 2, 60.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 4);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 5, 1, 'D-401', 'truck', 3, 100.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 5);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 6, 2, 'T1-01', 'car', 0, 80.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 6);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 7, 2, 'T1-02', 'car', 0, 80.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 7);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 8, 2, 'T1-03', 'two-wheeler', 0, 30.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 8);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 9, 2, 'T1-04', 'SUV', 0, 120.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 9);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 10, 3, 'P-01', 'car', 0, 50.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 10);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 11, 3, 'P-02', 'two-wheeler', 0, 25.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 11);
+
+INSERT INTO Parking_Slot (slot_id, lot_id, slot_number, slot_type, floor_level, hourly_rate, is_available)
+SELECT 12, 3, 'P-03', 'SUV', 0, 75.00, true
+WHERE NOT EXISTS (SELECT 1 FROM Parking_Slot WHERE slot_id = 12);
+
+-- Adjust SERIAL sequence for Parking_Slot
+SELECT setval(pg_get_serial_sequence('public.Parking_Slot', 'slot_id'), COALESCE(MAX(slot_id), 1)) FROM Parking_Slot;
